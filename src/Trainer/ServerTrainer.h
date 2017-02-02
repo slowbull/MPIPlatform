@@ -39,7 +39,7 @@ class ServerTrainer : public Trainer {
 
 	// Train.
 	Timer gradient_timer;
-	printf("Epoch: 	Time(s): Loss:   Evaluation(MSE for Regression, AUC for classificaton): \n");
+	printf("Epoch: 	Time(s): Loss:   Evaluation(AUC or Accuracy): \n");
 	for (int epoch = 0; epoch < FLAGS_n_epochs; epoch++) {
 	  srand(epoch);
 
