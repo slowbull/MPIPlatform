@@ -36,7 +36,7 @@ mpirun -np 5 ./mpiplatform -fcn -num_workers=4 -data_file="absolutepathto/data/c
 # How to use on AWS
 1. Open an account on Amazon Web Services (AWS).
 2. **Launch instances on AWS EC2.** Configure: (1) Choose AMI: Ubuntu Server, (3) Configure Instance: Number of instances 5, (6) Configure Security Group: Type: All TCP. Then click launch and download a key named ```FirstKey.pem```.
-3. **Setup the public key.**``` mv Firstkey.pem ~/.ssh/   chmod 400 ~/.ssh/Firstkey.pem```
+3. **Setup the public key.**``` mv Firstkey.pem ~/.ssh/ ＆  chmod 400 ~/.ssh/Firstkey.pem```
 
 4. **Generate compressed data.**  Go to ```data/``` directory, and run ```./compress_data.sh absolutepashto/data/covtype_binary_split/ 4```.  
 
@@ -55,7 +55,6 @@ hosts="
 ```
 First machine works as server. 
 Then upload and install by running ```./upload_install_split.sh absolutepathto/aws_code.tar  absolutepathto/covtype_binary_split/```
-
 7. **Login to server and setup.**  Go to bulid/ and create a ```hostfile``` like 
 ```
 54.175.225.66
