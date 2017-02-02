@@ -34,6 +34,42 @@ mpirun -np 5 ./mpiplatform -fcn -num_workers=4 -data_file="absolutepathto/data/c
 ```
 
 # How to use on AWS
+1. Open an account on Amazon Web Services (AWS).
+2. **Launch instances on AWS EC2.** Configure: (1) Choose AMI: Ubuntu Server, (3) Configure Instance: Number of instances 5, (6) Configure Security Group: Type: All TCP. Then click launch and download a key named ```FirstKey.pem```.
+3. **Setup the public key.**
+```
+mv Firstkey.pem ~/.ssh/
+chmod 400 ~/.ssh/Firstkey.pem
+```
+
+4.  **Generate compressed data.** Go to ```data/``` directory, and run ```./compress_data.sh absolutepashto/data/covtype_binary_split/ 4```.  
+5.  **Generate compressed code.** Download our project from github again, copy ```Firstkey.pem``` to the repository and compress it. run ```tar cvf aws_code.tar MPIPlatform```
+6.  **Upload and install.**  Open ```upload_install_split.sh``` and fill in the hosts part with public ip of 5 machines we just launched. 
+
+```
+hosts="
+54.175.225.66
+54.174.70.95
+54.211.115.252
+52.91.166.132
+54.175.107.232
+" 
+```
+First machine works as server. 
+Then upload and install by running ```./upload_install_split.sh absolutepathto/aws_code.tar  absolutepathto/covtype_binary_split/```
+
+8. **Login to server and setup.**  Go to bulid/ and create a ```hostfile``` like 
+```
+54.175.225.66
+54.174.70.95
+54.211.115.252
+52.91.166.132
+54.175.107.232
+```
+10. **Run the program**, do 
+```
+mpirun -hostfile hostfile ./mpiplatform -logistic_l2_l1 -num_workers=4 -data_file="/home/ubuntu/" -distribute -print_loss_per_epoch -d1=54 -learning_rate=1e-1 -n_epochs=100 -mini_batch=100 -in_iters=1000 -svrg -max_delay=10
+```
 
 ## Disclaimer
 This repository uses code from [Cyclades](https://github.com/amplab/cyclades), we borrow the framework from this project.  And we use code from [LibSVM](https://github.com/cjlin1/libsvm) to read libsvm data and  transform it to distributed armadillo format.
