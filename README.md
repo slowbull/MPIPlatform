@@ -54,7 +54,8 @@ hosts="
 " 
 ```
 First machine works as server. 
-Then upload and install by running ```./upload_install_split.sh absolutepathto/aws_code.tar  absolutepathto/covtype_binary_split/```.
+Then upload and install by running 
+```./upload_install_split.sh absolutepathto/aws_code.tar  absolutepathto/covtype_binary_split/```
 
 7. **Login to server and setup.** To login the server, do
 ```
@@ -67,7 +68,7 @@ Go to bulid/ and create a ```hostfile``` like
 54.211.115.252
 52.91.166.132
 54.175.107.232
-```. 
+```
 8. **Run the program**, do 
 ```
 mpirun -hostfile hostfile ./mpiplatform -logistic_l2_l1 -num_workers=4 -data_file="/home/ubuntu/" -distribute -print_loss_per_epoch -d1=54 -learning_rate=1e-1 -n_epochs=100 -mini_batch=100 -in_iters=1000 -svrg -max_delay=10
