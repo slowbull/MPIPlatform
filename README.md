@@ -55,6 +55,7 @@ hosts="
 ```
 First machine works as server. 
 Then upload and install by running ```./upload_install_split.sh absolutepathto/aws_code.tar  absolutepathto/covtype_binary_split/```
+
 7. **Login to server and setup.**  Go to bulid/ and create a ```hostfile``` like 
 ```
 54.175.225.66
