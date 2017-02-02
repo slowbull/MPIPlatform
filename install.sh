@@ -40,3 +40,16 @@ g++ -o splitdata ../data/split_data.c
 cmake ..
 make
 
+cd ..
+
+#distributed setting.
+if [ -f Firstkey.pem ]
+then
+	# transfer key
+	mv Firstkey.pem ~/.ssh/id_rsa
+	chmod 400 ~/.ssh/id_rsa
+
+	#disable key checking.
+	printf '%s\n %s' 'Host *' 'StrictHostKeyChecking no' >> ~/.ssh/config
+	chmod 400 ~/.ssh/config
+fi
