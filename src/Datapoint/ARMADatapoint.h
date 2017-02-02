@@ -44,7 +44,7 @@ class ARMADatapoint : public Datapoint {
     if(taskid != 0) {
 	  std::string label_filename;
 	  std::string feature_filename;
-	  if(FLAGS_local) {
+	  if(!FLAGS_distribute) {
         label_filename = data_dir + "labels.mat_" + std::to_string(taskid);	 
         feature_filename = data_dir + "features.mat_" + std::to_string(taskid);		
 	  }

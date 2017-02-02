@@ -77,11 +77,8 @@ DEFINE_double(learning_rate_dec, 0, "Learning rate decay. 1/(1+epoch)^beta");
 DEFINE_double(l1_lambda, 0, "regularization parameter for l1 norm.");
 DEFINE_double(l2_lambda, 0, "regularization parameter for l2 norm.");
 DEFINE_bool(print_loss_per_epoch, false, "Should compute and print loss every epoch.");
-DEFINE_bool(local, true, "code is run at localhost.");
+DEFINE_bool(distribute, false, "code is run at distributed cluster or run on localhost otherwise.");
 
-
-// Flags for training types.
-DEFINE_bool(distribute_trainer, false, "Distributed training method (parallel).");
 
 // Flags for updating types.
 DEFINE_bool(svrg, false, "Use the sparse SVRG.");
