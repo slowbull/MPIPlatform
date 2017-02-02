@@ -15,7 +15,7 @@ This project is a platform for distributed optimization expriments using OpenMPI
  **Remark:** ```./install``` is only used for first time installation. After you modify the code and want to compile, just run ```make``` in ```build/``` directory. 
  
  
-## How to use
+## How to use on localhost
 ### Run linear model.
 1. **Generate distributed datasets**.  Go to build directory, and run ```./splitdata ../data/covtype_binary 4 0```. It will generate 4 data files in ```data/covtype_binary_split/``` directory. ```./splitdata``` will transform libsvm format data to armadillo format data, and distributes it to multiple files. run  ```./splitdata``` directly to see how to use it.
  
@@ -33,6 +33,7 @@ mpirun -np 5 ./mpiplatform -logistic_l2_l1 -num_workers=4 -data_file="absolutepa
 mpirun -np 5 ./mpiplatform -fcn -num_workers=4 -data_file="absolutepathto/data/covtype_multiclass_split/" -print_loss_per_epoch -d1=54 -d2=20 -d3=7 -learning_rate=1e-3 -n_epochs=100 -mini_batch=10 -in_iters=1000 -svrg -max_delay=10
 ```
 
+# How to use on AWS.
 
 ## Disclaimer
 This repository uses code from [Cyclades](https://github.com/amplab/cyclades), we borrow the framework from this project.  And we use code from [LibSVM](https://github.com/cjlin1/libsvm) to read libsvm data and  transform it to distributed armadillo format.
