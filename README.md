@@ -41,8 +41,10 @@ mpirun -np 5 ./mpiplatform -fcn -num_workers=4 -data_file="absolutepathto/data/c
 mv Firstkey.pem ~/.ssh/
 chmod 400 ~/.ssh/Firstkey.pem
 ```
-4.  **Generate compressed data.** Go to ```data/``` directory, and run ```./compress_data.sh absolutepashto/data/covtype_binary_split/ 4```.  
+4.  **Generate compressed data.**  Go to ```data/``` directory, and run ```./compress_data.sh absolutepashto/data/covtype_binary_split/ 4```.  
+
 5.  **Generate compressed code.** Download our project from github again, copy ```Firstkey.pem``` to the repository and compress it. run ```tar cvf aws_code.tar MPIPlatform```
+
 6.  **Upload and install.**  Open ```upload_install_split.sh``` and fill in the hosts part with public ip of 5 machines we just launched. 
 
 ```
@@ -56,6 +58,7 @@ hosts="
 ```
 First machine works as server. 
 Then upload and install by running ```./upload_install_split.sh absolutepathto/aws_code.tar  absolutepathto/covtype_binary_split/```
+
 7. **Login to server and setup.**  Go to bulid/ and create a ```hostfile``` like 
 ```
 54.175.225.66
