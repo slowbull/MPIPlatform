@@ -33,7 +33,7 @@ mpirun -np 5 ./mpiplatform -logistic_l2_l1 -num_workers=4 -data_file="absolutepa
 mpirun -np 5 ./mpiplatform -fcn -num_workers=4 -data_file="absolutepathto/data/covtype_multiclass_split/" -print_loss_per_epoch -d1=54 -d2=20 -d3=7 -learning_rate=1e-3 -n_epochs=100 -mini_batch=10 -in_iters=1000 -svrg -max_delay=10
 ```
 
-# How to use on AWS.
+# How to use on AWS
 
 ## Disclaimer
 This repository uses code from [Cyclades](https://github.com/amplab/cyclades), we borrow the framework from this project.  And we use code from [LibSVM](https://github.com/cjlin1/libsvm) to read libsvm data and  transform it to distributed armadillo format.
