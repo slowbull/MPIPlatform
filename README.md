@@ -55,8 +55,9 @@ hosts="
 ```
 First machine works as server. 
 Then upload and install by running 
-```./upload_install_split.sh absolutepathto/aws_code.tar  absolutepathto/covtype_binary_split/```
-
+```
+./upload_install_split.sh absolutepathto/aws_code.tar  absolutepathto/covtype_binary_split/
+```
 7. **Login to server and setup.** To login the server, do
 ```
 ssh -i ~/.ssh/Firstkey.pem ubuntu@54.175.225.66
