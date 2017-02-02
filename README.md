@@ -21,7 +21,7 @@ This project is a platform for distributed optimization expriments using OpenMPI
  
 2. **Run**  To run do 
 ```
-mpirun -np 5 ./mpiplatform -logistic_l2_l1 -num_workers=4 -data_file="absolutepathto/data/covtype_binary_split/" -print_loss_per_epoch -d1=54 -learning_rate=1e-1 -n_epochs=100 -mini_batch=100 -in_iters=1000 -group_size=4 -svrg
+mpirun -np 5 ./mpiplatform -logistic_l2_l1 -num_workers=4 -data_file="absolutepathto/data/covtype_binary_split/" -print_loss_per_epoch -d1=54 -learning_rate=1e-1 -n_epochs=100 -mini_batch=100 -in_iters=1000 -svrg -max_delay=10
 ```
 
 ### Run fully connected nueral network model.
@@ -30,7 +30,7 @@ mpirun -np 5 ./mpiplatform -logistic_l2_l1 -num_workers=4 -data_file="absolutepa
   
 2. **Run**  To run do 
 ```
-mpirun -np 5 ./mpiplatform -fcn -num_workers=4 -data_file="absolutepathto/data/covtype_multiclass_split/" -print_loss_per_epoch -d1=54 -d2=20 -d3=7 -learning_rate=1e-3 -n_epochs=100 -mini_batch=10 -in_iters=1000 -group_size=4 -svrg
+mpirun -np 5 ./mpiplatform -fcn -num_workers=4 -data_file="absolutepathto/data/covtype_multiclass_split/" -print_loss_per_epoch -d1=54 -d2=20 -d3=7 -learning_rate=1e-3 -n_epochs=100 -mini_batch=10 -in_iters=1000 -svrg -max_delay=10
 ```
 
 
