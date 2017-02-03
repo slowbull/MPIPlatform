@@ -1,4 +1,4 @@
-# Platform for distributed optimization expriments using OpenMPI
+# Platform for distributed optimization experiments using OpenMPI
 
 ## Introduction
 This project is a platform for distributed optimization expriments using OpenMPI. This platform is used to implement the expeirments of my recent papers [1][2]. Please cite them if this code helps you. :)
