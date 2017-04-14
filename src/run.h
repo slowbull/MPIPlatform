@@ -10,7 +10,10 @@ TrainStatistics RunOnce(int taskid) {
 
   Updater *updater = NULL;
   if (FLAGS_svrg) {
-	updater = new SVRGUpdater(model, datapoints);
+	if (!FLAGS_elastic_average) 
+	  updater = new SVRGUpdater(model, datapoints);
+	else
+	  updater = new DisSVRGUpdater(model, datapoints);
   }
   else if (FLAGS_sgd) {
 	updater = new SGDUpdater(model, datapoints);
@@ -21,11 +24,21 @@ TrainStatistics RunOnce(int taskid) {
 
   // Create trainer depending on flag.
   Trainer *trainer = NULL;
-  if (taskid == 0) {
-  trainer = new ServerTrainer(model, datapoints);
+  if (!FLAGS_elastic_average) {
+	  if (taskid == 0) {
+	  	trainer = new ServerTrainer(model, datapoints);
+	  }
+	  else {
+	  	trainer = new WorkerTrainer(model, datapoints);
+	  }
   }
   else {
-  trainer = new WorkerTrainer(model, datapoints);
+	  if (taskid == 0) {
+	  	trainer = new DistServerTrainer(model, datapoints);
+	  }
+	  else {
+	  	trainer = new DistWorkerTrainer(model, datapoints);
+	  }
   }
 
   TrainStatistics stats = trainer->Train(model, datapoints, updater);

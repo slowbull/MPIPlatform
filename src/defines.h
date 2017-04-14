@@ -78,6 +78,7 @@ DEFINE_double(l1_lambda, 0, "regularization parameter for l1 norm.");
 DEFINE_double(l2_lambda, 0, "regularization parameter for l2 norm.");
 DEFINE_bool(print_loss_per_epoch, false, "Should compute and print loss every epoch.");
 DEFINE_bool(distribute, false, "code is run at distributed cluster or run on localhost otherwise.");
+DEFINE_bool(elastic_average, false, "Trainer that use elastic average method.");
 
 
 // Flags for updating types.
@@ -88,10 +89,13 @@ DEFINE_bool(sgd, false, "Use the sparse SGD.");
 #include "Updater/Updater.h"
 #include "Updater/SGDUpdater.h"
 #include "Updater/SVRGUpdater.h"
+#include "Updater/DisSVRGUpdater.h"
 
 #include "Trainer/Trainer.h"
 #include "Trainer/ServerTrainer.h"
 #include "Trainer/WorkerTrainer.h"
+#include "Trainer/DistServerTrainer.h"
+#include "Trainer/DistWorkerTrainer.h"
 
 #include "Datapoint/ARMADatapoint.h"
 #include "Model/LOGISTICL2L1Model.h"
