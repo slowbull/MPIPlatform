@@ -89,6 +89,8 @@ class DistWorkerTrainer : public Trainer {
 	  }
 
 	  MPI_Send(&message[0], model->NumParameters(), MPI_DOUBLE, 0, 101, MPI_COMM_WORLD);
+
+  	  if(FLAGS_accelerate) y_larger_than_past();
 		
 	  MPI_Recv(&message[0], local_model.size()+2, MPI_DOUBLE, 0, 102, MPI_COMM_WORLD, &status);
 
@@ -101,10 +103,41 @@ class DistWorkerTrainer : public Trainer {
 	return stats;
   }
 
+  bool y_larger_than_past() {
+	std::vector<double> &local_model = model->ModelData();
+	std::vector<double> copy_model(local_model);
+
+	double worker_eval = 0, master_eval = 0; 
+	double worker_loss = 0, master_loss = 0;
+	int worker_num = datapoints->GetSize();
+
+	MPI_Bcast(&local_model[0], local_model.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	worker_loss = model->ComputeLoss(datapoints, worker_eval);
+	worker_loss *=  worker_num; 
+	MPI_Reduce(&worker_loss, &master_loss, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+
+	MPI_Bcast(&local_model[0], local_model.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	worker_loss = model->ComputeLoss(datapoints, worker_eval);
+	worker_loss *=  worker_num; 
+	MPI_Reduce(&worker_loss, &master_loss, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+	// return to local model.
+	local_model = copy_model;
+
+	return true;
+  }
+
   virtual void EpochBegin(int epoch, Timer &gradient_timer, Model *model, Datapoint *datapoints, TrainStatistics *stats) override {
 	double worker_eval = 0, master_eval = 0; 
 	double worker_loss = 0, master_loss = 0;
 	int worker_num = 0, master_num = 0;
+
+
+	std::vector<double> &local_model = model->ModelData();
+	std::vector<double> copy_model(local_model);
+	MPI_Bcast(&local_model[0], local_model.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
 	worker_num = datapoints->GetSize();
 	worker_loss = model->ComputeLoss(datapoints, worker_eval);
 	worker_loss *=  worker_num; 
@@ -112,6 +145,8 @@ class DistWorkerTrainer : public Trainer {
 	MPI_Reduce(&worker_num, &master_num, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 	MPI_Reduce(&worker_eval, &master_eval, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	MPI_Reduce(&worker_loss, &master_loss, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+	local_model = copy_model;
   }
 
 };
