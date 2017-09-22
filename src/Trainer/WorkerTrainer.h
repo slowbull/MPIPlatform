@@ -47,8 +47,10 @@ class WorkerTrainer : public Trainer {
 
 	Timer gradient_timer;
 	// Train.
+	int epoch = 0;
 	while (true) {
-	  srand(time(NULL));
+	  epoch += 1;
+	  srand(epoch);
 
 	  // epoch signal from server.
 	  if (flag_epoch) {

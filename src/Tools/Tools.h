@@ -26,6 +26,7 @@
 
 using namespace arma;
 
+/*
 // for different layers nn, we have to edit this file.
 template<typename T>
 std::vector<double> mat_2_vec(const T& Matrix){
@@ -39,7 +40,6 @@ std::vector<double> mat_2_vec(const T& Matrix){
   return out;
 }
 
-
 mat vec_2_mat(const std::vector<double>& w, int begin, int row, int col){
   mat out(row,col); int index = 0;
 	for(int i=0; i<row; i++)
@@ -48,6 +48,30 @@ mat vec_2_mat(const std::vector<double>& w, int begin, int row, int col){
 		out(i,j) = w[begin+index];
 	  }
   return out;
+}
+*/
+
+template<typename T> 
+std::vector<double> mat_2_vec(const T& Matrix){
+	std::vector<double> out;
+	if (Matrix.n_rows==1 || Matrix.n_cols==1)
+		 out = arma::conv_to<std::vector<double>>::from((mat)Matrix);
+	else{
+		mat MatrixT = (mat)Matrix.t();
+		for (size_t i=0; i<MatrixT.n_cols; i++){
+			std::vector<double> sub_w = arma::conv_to<std::vector<double>>::from(MatrixT.col(i));
+			out.insert(out.end(), sub_w.begin(), sub_w.end());
+		}
+	}
+	return out;
+}
+
+mat vec_2_mat(const std::vector<double> &w, int begin, int row, int col){
+	int index = 0;
+	std::vector<double> sub_w(w.begin()+begin, w.begin()+row*col+begin);
+	mat out = arma::conv_to<mat>::from(sub_w);
+	out = reshape(out, col, row);
+	return out.t();
 }
 
 

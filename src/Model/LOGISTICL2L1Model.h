@@ -116,6 +116,7 @@ class LOGISTICL2L1Model : public Model {
 	affine_backward(datapoints->GetFeaturesCols(0, size-1).t(), w, dldo, dx, grad);
 
 	g->coeffs = mat_2_vec(grad);
+
   }
 
   // l2 norm.

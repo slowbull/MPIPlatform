@@ -54,7 +54,7 @@ class DistWorkerTrainer : public Trainer {
       double learning_rate = FLAGS_learning_rate / std::pow(1+epoch, FLAGS_learning_rate_dec);
 	  epoch += 1;
 
-	  srand(time(NULL));
+	  srand(epoch);
 
 	  // epoch signal from server.
 	  if (flag_epoch) {
@@ -65,6 +65,7 @@ class DistWorkerTrainer : public Trainer {
 	  if (flag_break) {
 	    break;
 	  }
+
 
 	  for (int iter = 0; iter < FLAGS_in_iters; iter++) {
 		  int left_index = rand() % datapoints->GetSize();
@@ -88,6 +89,7 @@ class DistWorkerTrainer : public Trainer {
 		local_model[i] = local_model[i] - FLAGS_kappa * learning_rate * (local_model[i] - server_model[i]);
 	  }
 
+
 	  MPI_Send(&message[0], model->NumParameters(), MPI_DOUBLE, 0, 101, MPI_COMM_WORLD);
 
   	  if(FLAGS_accelerate) y_larger_than_past();
@@ -97,6 +99,7 @@ class DistWorkerTrainer : public Trainer {
 	  server_model.assign(message.begin(), message.end()-2);
 	  flag_epoch = *(message.end()-2);
 	  flag_break = *(message.end()-1);
+
 	}
 
 	delete sub_datapoints;

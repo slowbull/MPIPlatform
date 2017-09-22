@@ -20,7 +20,7 @@
 #include "../Gradient/Gradient.h"
 #include "../Tools/Tools.h"
 
-DEFINE_double(moving_rate, 0.001, "moving rate with respect to weight in the server.");
+DEFINE_double(moving_rate, 0.9, "moving rate with respect to weight in the server.");
 DEFINE_double(kappa, 0.1, "parameter kappa imposed on local problem.");
 DEFINE_bool(accelerate, false, "accelerated elastic average.");
 DEFINE_int32(past_size, 1, "number of past models stored in accelerated mothoed.");
