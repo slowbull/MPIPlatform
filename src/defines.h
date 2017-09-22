@@ -76,13 +76,16 @@ DEFINE_double(learning_rate, .001, "Learning rate.");
 DEFINE_double(learning_rate_dec, 0, "Learning rate decay. 1/(1+epoch)^beta");
 DEFINE_double(l1_lambda, 0, "regularization parameter for l1 norm.");
 DEFINE_double(l2_lambda, 0, "regularization parameter for l2 norm.");
+DEFINE_double(trace_lambda, 0, "regularization parameter for trace norm.");
 DEFINE_bool(print_loss_per_epoch, false, "Should compute and print loss every epoch.");
+DEFINE_int32(interval_print, 1, "Interval in which to print the loss.");
 DEFINE_bool(distribute, false, "code is run at distributed cluster or run on localhost otherwise.");
+DEFINE_bool(decouple, false, "proximal operator is running in the worker. decoupled algorithm.");
 
 
 // Flags for updating types.
-DEFINE_bool(svrg, false, "Use the sparse SVRG.");
-DEFINE_bool(sgd, false, "Use the sparse SGD.");
+DEFINE_bool(svrg, false, "Use SVRG.");
+DEFINE_bool(sgd, false, "Use SGD.");
 
 
 #include "Updater/Updater.h"
@@ -92,9 +95,13 @@ DEFINE_bool(sgd, false, "Use the sparse SGD.");
 #include "Trainer/Trainer.h"
 #include "Trainer/ServerTrainer.h"
 #include "Trainer/WorkerTrainer.h"
+#include "Trainer/DecoupledServerTrainer.h"
+#include "Trainer/DecoupledWorkerTrainer.h"
 
 #include "Datapoint/ARMADatapoint.h"
+
 #include "Model/LOGISTICL2L1Model.h"
 #include "Model/FCNModel.h"
+#include "Model/MULTICLASSTRACEModel.h"
 
 #endif

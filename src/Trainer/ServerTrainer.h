@@ -20,7 +20,6 @@
 #include "../Gradient/Gradient.h"
 #include "../Tools/Tools.h"
 
-DEFINE_int32(interval_print, 1, "Interval in which to print the loss.");
 
 class ServerTrainer : public Trainer {
  public:
@@ -78,9 +77,12 @@ class ServerTrainer : public Trainer {
 			flag_receive = true;
 		}
 
-		// proximal operator
-		updater->ApplyProximalOperator(learning_rate * FLAGS_l1_lambda);
-
+		// proximal operator occurs in the server if not decoupled.
+		if(FLAGS_l1_lambda)
+		  updater->ApplyProximalOperator(learning_rate * FLAGS_l1_lambda);
+		else if(FLAGS_trace_lambda)
+		  updater->ApplyProximalOperator(learning_rate * FLAGS_trace_lambda);
+		
 		// build message.
 		std::vector<double> & master_model = model->ModelData();
 		message = master_model;

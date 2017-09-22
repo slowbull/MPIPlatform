@@ -15,11 +15,6 @@
 *    limitations under the License.
 */
 
-// how to use:
-// mpirun -np 9 ./mpiplatform -logistic_l2_l1 -num_workers=8 -data_file="/home/jonny/ZHOU/Data/libsvm/covtype/8/" -print_loss_per_epoch -d1=54 -learning_rate=1e-2 -n_epochs=100 -mini_batch=100 -in_iters=1000 -group_size=8 -sgd
-// mpirun -np 9 ./mpiplatform -logistic_l2_l1 -num_workers=8 -data_file="/home/jonny/ZHOU/Data/libsvm/covtype/8/" -print_loss_per_epoch -d1=54 -learning_rate=1e-1 -n_epochs=100 -mini_batch=100 -in_iters=1000 -group_size=8 -svrg
-// mpirun -np 9 ./mpiplatform -fcn -num_workers=8 -data_file="/home/jonny/ZHOU/Data/libsvm/multi_covtype/8/" -print_loss_per_epoch -d1=54 -d2=20 -d3=7 -learning_rate=1e-3 -n_epochs=100 -mini_batch=10 -in_iters=1000 -group_size=8 -svrg
-
 #include <iostream>
 #include "run.h"
 #include "mpi.h"
@@ -27,6 +22,7 @@
 // Flags for application types.
 DEFINE_bool(logistic_l2_l1, false, "logistic loss with l2 and l1 norm regularization type.");
 DEFINE_bool(fcn, false, "three layers fully connected network with l2 norm regularization type.");
+DEFINE_bool(multi_class_trace, false, "multiclass logistic loss with l2 norm and trace norm regularization type.");
 
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -41,6 +37,9 @@ int main(int argc, char **argv) {
   }
   else if (FLAGS_fcn) {
 	Run<FCNModel, ARMADatapoint>(taskid);
+  }
+  else if (FLAGS_multi_class_trace) {
+	Run<MULTICLASSTRACEModel, ARMADatapoint>(taskid);
   }
 
   MPI_Finalize();

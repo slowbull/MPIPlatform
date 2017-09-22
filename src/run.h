@@ -21,11 +21,21 @@ TrainStatistics RunOnce(int taskid) {
 
   // Create trainer depending on flag.
   Trainer *trainer = NULL;
-  if (taskid == 0) {
-  trainer = new ServerTrainer(model, datapoints);
+  if (!FLAGS_decouple){
+    if (taskid == 0) {
+      trainer = new ServerTrainer(model, datapoints);
+    }
+    else {
+      trainer = new WorkerTrainer(model, datapoints);
+    }
   }
-  else {
-  trainer = new WorkerTrainer(model, datapoints);
+  else{
+    if (taskid == 0) {
+      trainer = new DecoupledServerTrainer(model, datapoints);
+    }
+    else {
+      trainer = new DecoupledWorkerTrainer(model, datapoints);
+    }
   }
 
   TrainStatistics stats = trainer->Train(model, datapoints, updater);

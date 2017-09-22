@@ -112,6 +112,29 @@ double EvaluateAccuracy(const mat& probs, const mat& y){
   return count*1.0/num_sample;
 }
 
+// multiclass logistic accuracy.
+double metric_acc_logistic(const mat& o, const mat& y){
+  int num_sample = o.n_rows;
+  int count = 0;
+  for(int i = 0; i < num_sample; i++){
+  	uword pred_y = o.row(i).index_max();
+	uword truth_y = y.row(i).index_max();
+	if(pred_y == truth_y) 
+	  count++;
+  }
+  return 1.0 * count / num_sample;
+}
+
+
+// vector to onehot encoding
+void one_hot_encoding(const mat& y, mat& onehot_y){
+  for(size_t i = 0; i < y.n_rows; i++){
+	int label = y(i);
+	onehot_y.row(i) = -1 * ones(1, onehot_y.n_cols);
+	onehot_y(i, label) = 1;
+  }
+}
+
 
 // if seed !=0 initialize with seed random value. if flag == 0 initialize with  0.
 void InitWeight(std::vector<double> &w, const std::vector<int> dims){
