@@ -49,20 +49,21 @@ class WorkerTrainer : public Trainer {
 	Timer gradient_timer;
 	// Train.
 	while (true) {
-	  srand(epoch);
 
 	  // epoch signal from server.
 	  if (flag_epoch) {
 	    this->EpochBegin(0, gradient_timer, model, datapoints, &stats);
 	    updater->EpochBegin();
 		flag_epoch = 0;
+	  	srand(epoch);
+		epoch++;
 		continue;
 	  }
 	  if (flag_break) {
 	    break;
 	  }
 
-	  int left_index = rand() % datapoints->GetSize();
+	  int left_index = rand() % (datapoints->GetSize() - FLAGS_mini_batch);
 	  int right_index = left_index + FLAGS_mini_batch; 
 	  if (right_index > datapoints->GetSize()) 
 		right_index = datapoints->GetSize();	

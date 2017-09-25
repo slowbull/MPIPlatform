@@ -90,12 +90,12 @@ class ServerTrainer : public Trainer {
 		  message.push_back(0);
 		  message.push_back(0);
 		}
-		else if(epoch < FLAGS_n_epochs - 1) {
+		else if(iter_counter == FLAGS_in_iters - 1 && epoch < FLAGS_n_epochs - 1) {
 		  message.push_back(1);
 		  message.push_back(0);
 		}
-		else {
-		  message.push_back(1);
+		else if(iter_counter == FLAGS_in_iters - 1 && epoch == FLAGS_n_epochs - 1) {
+		  message.push_back(0);
 		  message.push_back(1);
 		}
 

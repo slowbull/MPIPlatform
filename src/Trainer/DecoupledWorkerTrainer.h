@@ -51,7 +51,6 @@ class DecoupledWorkerTrainer : public Trainer {
 	Timer gradient_timer;
 	// Train.
 	while (true) {
-	  srand(epoch);
 
 	  // epoch signal from server.
 	  if (flag_epoch) {
@@ -59,6 +58,7 @@ class DecoupledWorkerTrainer : public Trainer {
 	    updater->EpochBegin();
 		flag_epoch = 0;
 		learning_rate = FLAGS_learning_rate / std::pow(1+epoch, FLAGS_learning_rate_dec);
+	    srand(epoch);
 		epoch++;
 		continue;
 	  }
@@ -66,25 +66,30 @@ class DecoupledWorkerTrainer : public Trainer {
 	    break;
 	  }
 
-	  int left_index = rand() % datapoints->GetSize();
+	  int left_index = rand() % (datapoints->GetSize() - FLAGS_mini_batch);
 	  int right_index = left_index + FLAGS_mini_batch; 
 	  if (right_index > datapoints->GetSize()) 
 		right_index = datapoints->GetSize();	
+
 
 	  sub_datapoints->SetFeatures(datapoints->GetFeaturesCols(left_index, right_index - 1));
 	  sub_datapoints->SetLabels(datapoints->GetLabelsRows(left_index, right_index - 1));
 
 	  updater->Update(model, sub_datapoints, gradient);
-	  updater->ApplyGradient(gradient, learning_rate);
-		
+
 	  // proximal operator occurs in the worker if not decoupled.
 	  std::vector<double> model_copy = local_model;
-	  if(FLAGS_l1_lambda)
+	  updater->ApplyGradient(gradient, learning_rate);
+	  if(FLAGS_l1_lambda){
 	    updater->ApplyProximalOperator(learning_rate * FLAGS_l1_lambda);
-	  else if(FLAGS_trace_lambda)
+	  }
+	  else if(FLAGS_trace_lambda){
 		updater->ApplyProximalOperator(learning_rate * FLAGS_trace_lambda);
-	  for(size_t i; i < model_copy.size(); i++)
+	  }
+
+	  for(size_t i = 0; i < model_copy.size(); i++){
 		gradient->coeffs[i] = model_copy[i] - local_model[i];
+	  }
 
 	  MPI_Send(&gradient->coeffs[0], gradient->coeffs.size(), MPI_DOUBLE, 0, 101, MPI_COMM_WORLD);
 		

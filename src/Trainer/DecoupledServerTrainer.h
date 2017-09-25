@@ -88,7 +88,7 @@ class DecoupledServerTrainer : public Trainer {
 		  message.push_back(0);
 		}
 		else {
-		  message.push_back(1);
+		  message.push_back(0);
 		  message.push_back(1);
 		}
 
