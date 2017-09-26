@@ -34,7 +34,7 @@ git clone https://github.com/gflags/gflags.git
 mkdir build
 cd build
 # generate splitdata
-g++ -o splitdata ../data/split_data.c
+g++ -std=c++11 -o splitdata ../data/split_data.c
 
 # make project
 cmake ..
