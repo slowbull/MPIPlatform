@@ -34,6 +34,8 @@ class WorkerTrainer : public Trainer {
 
     // Keep track of statistics of training.
 	TrainStatistics stats;
+	stats.working_time = 0;
+	stats.waiting_time = 0;
 
 	Datapoint *sub_datapoints = new ARMADatapoint();
 
@@ -63,6 +65,8 @@ class WorkerTrainer : public Trainer {
 	    break;
 	  }
 
+	  gradient_timer.Tick();
+
 	  int left_index = rand() % (datapoints->GetSize() - FLAGS_mini_batch);
 	  int right_index = left_index + FLAGS_mini_batch; 
 	  if (right_index > datapoints->GetSize()) 
@@ -73,10 +77,17 @@ class WorkerTrainer : public Trainer {
 
 	  updater->Update(model, sub_datapoints, gradient);
 
+	  gradient_timer.Tock();
+	  stats.working_time += gradient_timer.elapsed;
+	  gradient_timer.Tick();
+
 	  MPI_Send(&gradient->coeffs[0], gradient->coeffs.size(), MPI_DOUBLE, 0, 101, MPI_COMM_WORLD);
 
 		
 	  MPI_Recv(&message[0], local_model.size()+2, MPI_DOUBLE, 0, 102, MPI_COMM_WORLD, &status);
+
+	  gradient_timer.Tock();
+	  stats.waiting_time += gradient_timer.elapsed;
 
 	  local_model.assign(message.begin(), message.end()-2);
 	  flag_epoch = *(message.end()-2);
@@ -88,16 +99,26 @@ class WorkerTrainer : public Trainer {
   }
 
   virtual void EpochBegin(int epoch, Timer &gradient_timer, Model *model, Datapoint *datapoints, TrainStatistics *stats) override {
-	double worker_eval = 0, master_eval = 0; 
-	double worker_loss = 0, master_loss = 0;
-	int worker_num = 0, master_num = 0;
+	double worker_eval = 0; 
+	double worker_loss = 0;
+	int worker_num = 0;
+	double worker_working_time = stats->working_time;
+	double worker_waiting_time = stats->waiting_time;
+
 	worker_num = datapoints->GetSize();
 	worker_loss = model->ComputeLoss(datapoints, worker_eval);
+
 	worker_loss *=  worker_num; 
 	worker_eval *=  worker_num; 
-	MPI_Reduce(&worker_num, &master_num, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-	MPI_Reduce(&worker_eval, &master_eval, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-	MPI_Reduce(&worker_loss, &master_loss, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+	std::vector<double> worker_message, server_message;
+	worker_message.push_back(worker_num);
+	worker_message.push_back(worker_eval);
+	worker_message.push_back(worker_loss);
+	worker_message.push_back(worker_working_time);
+	worker_message.push_back(worker_waiting_time);
+
+	MPI_Reduce(&worker_message[0], &server_message[0], 5, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
   }
 
 };

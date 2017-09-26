@@ -25,6 +25,8 @@
 struct TrainStatistics {
   std::vector<double> times;
   std::vector<double> losses;
+  double working_time;
+  double waiting_time;
 };
 
 typedef struct TrainStatistics TrainStatistics;
@@ -41,8 +43,8 @@ class Trainer {
 	stats->losses.push_back(cur_loss);
   }
 
-  void PrintTimeLoss(double cur_time, double cur_loss, int epoch, double cur_eval) {
-	printf("%d     %f    %.15f    %f\n", epoch, cur_time, cur_loss, cur_eval);
+  void PrintTimeLoss(double cur_time, double cur_loss, int epoch, double cur_eval, double working_time, double waiting_time) {
+	printf("%d     %f    %.15f    %f    %f    %f\n", epoch, cur_time, cur_loss, cur_eval, working_time, waiting_time);
   }
 
   virtual void EpochBegin(int epoch, Timer &gradient_timer, Model *model, Datapoint *datapoints, TrainStatistics *stats) {

@@ -38,7 +38,7 @@ class ServerTrainer : public Trainer {
 
 	// Train.
 	Timer gradient_timer;
-	printf("Epoch: 	Time(s): Loss:   Evaluation(AUC or Accuracy): \n");
+	printf("Epoch: 	Time(s): Loss:   Evaluation(AUC or Accuracy):   Working_Time:   Waiting_Time: \n");
 	for (int epoch = 0; epoch < FLAGS_n_epochs; epoch++) {
 	  srand(epoch);
 
@@ -123,18 +123,27 @@ class ServerTrainer : public Trainer {
 	else
 	  cur_time = gradient_timer.elapsed + stats->times[stats->times.size()-1];
 
-	double worker_eval = 0, master_eval = 0; 
-	double worker_loss = 0, master_loss = 0;
-	int worker_num = 0, master_num = 0;
-	MPI_Reduce(&worker_num, &master_num, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-	MPI_Reduce(&worker_eval, &master_eval, 1,  MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-	MPI_Reduce(&worker_loss, &master_loss, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+	double master_eval = 0; 
+	double master_loss = 0;
+	double master_num = 0;
+	double master_working_time = 0;
+	double master_waiting_time = 0;
+
+	std::vector<double> worker_message(5, 0), server_message(5, 0);
+	MPI_Reduce(&worker_message[0], &server_message[0], 5, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+	master_num = server_message[0];
+	master_eval = server_message[1];
+	master_loss = server_message[2];
+	master_working_time = server_message[3];
+	master_waiting_time = server_message[4];
+
 	master_loss /= master_num; 
 	master_eval /= master_num; 
 
 	Trainer::TrackTimeLoss(cur_time, master_loss, stats);
 	if (FLAGS_print_loss_per_epoch && epoch % FLAGS_interval_print == 0) {
-	  Trainer::PrintTimeLoss(cur_time, master_loss, epoch, master_eval);
+	  Trainer::PrintTimeLoss(cur_time, master_loss, epoch, master_eval, master_working_time, master_waiting_time);
 	}
   }
 };
