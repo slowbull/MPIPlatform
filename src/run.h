@@ -6,6 +6,8 @@ TrainStatistics RunOnce(int taskid) {
     // Initialize model and datapoints.
   Model *model = new MODEL_CLASS(taskid);
   Datapoint *datapoints = new DATAPOINT_CLASS(FLAGS_data_file, taskid);
+  if (FLAGS_multi_class_trace) 
+	datapoints->OnehotEncoding(FLAGS_d2);
   model->SetUp(datapoints);
 
   Updater *updater = NULL;

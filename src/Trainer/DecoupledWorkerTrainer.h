@@ -71,7 +71,6 @@ class DecoupledWorkerTrainer : public Trainer {
 	  if (right_index > datapoints->GetSize()) 
 		right_index = datapoints->GetSize();	
 
-
 	  sub_datapoints->SetFeatures(datapoints->GetFeaturesCols(left_index, right_index - 1));
 	  sub_datapoints->SetLabels(datapoints->GetLabelsRows(left_index, right_index - 1));
 
@@ -80,6 +79,7 @@ class DecoupledWorkerTrainer : public Trainer {
 	  // proximal operator occurs in the worker if not decoupled.
 	  std::vector<double> model_copy = local_model;
 	  updater->ApplyGradient(gradient, learning_rate);
+
 	  if(FLAGS_l1_lambda){
 	    updater->ApplyProximalOperator(learning_rate * FLAGS_l1_lambda);
 	  }

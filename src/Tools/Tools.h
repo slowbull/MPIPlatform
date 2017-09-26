@@ -94,45 +94,34 @@ double EvaluateAUC(const std::vector<double> & labels, std::vector<double> proba
 double EvaluateAccuracy(const mat& probs, const mat& y){
   int num_sample = probs.n_rows;
   int num_class = probs.n_cols;
-  double max_prob=0;
-  int idx_max_prob, count=0;	
-  for(int i=0; i<num_sample; i++){
-	max_prob = probs(i,0);
-	idx_max_prob = 0;
-	for(int j=0; j<num_class; j++){
-	  if(max_prob < probs(i,j)){
-		max_prob = probs(i,j);
-		idx_max_prob = j;
-	  }
-    }
-	if((int)y(i,0)==idx_max_prob)
-	  count += 1;
-	}
 
-  return count*1.0/num_sample;
+  uvec pred_y = index_max(probs, 1);
+  double count = sum(pred_y == y);
+
+  return count / num_sample;
 }
 
 // multiclass logistic accuracy.
 double metric_acc_logistic(const mat& o, const mat& y){
   int num_sample = o.n_rows;
-  int count = 0;
-  for(int i = 0; i < num_sample; i++){
-  	uword pred_y = o.row(i).index_max();
-	uword truth_y = y.row(i).index_max();
-	if(pred_y == truth_y) 
-	  count++;
-  }
-  return 1.0 * count / num_sample;
+  uvec pred_y = index_max(o, 1);
+  uvec truth_y = index_max(y, 1);
+
+  double count = sum(pred_y == truth_y);
+ 
+  return count / num_sample;
 }
 
 
 // vector to onehot encoding
-void one_hot_encoding(const mat& y, mat& onehot_y){
+mat one_hot_encoding(const mat& y, int num_class){
+  mat onehot_y(y.n_rows, num_class);
   for(size_t i = 0; i < y.n_rows; i++){
 	int label = y(i);
-	onehot_y.row(i) = -1 * ones(1, onehot_y.n_cols);
+	onehot_y.row(i) = -1 * ones(1, num_class);
 	onehot_y(i, label) = 1;
   }
+  return  onehot_y;
 }
 
 

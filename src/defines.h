@@ -82,6 +82,10 @@ DEFINE_int32(interval_print, 1, "Interval in which to print the loss.");
 DEFINE_bool(distribute, false, "code is run at distributed cluster or run on localhost otherwise.");
 DEFINE_bool(decouple, false, "proximal operator is running in the worker. decoupled algorithm.");
 
+// Flags for application types.
+DEFINE_bool(logistic_l2_l1, false, "logistic loss with l2 and l1 norm regularization type.");
+DEFINE_bool(fcn, false, "three layers fully connected network with l2 norm regularization type.");
+DEFINE_bool(multi_class_trace, false, "multiclass logistic loss with l2 norm and trace norm regularization type.");
 
 // Flags for updating types.
 DEFINE_bool(svrg, false, "Use SVRG.");

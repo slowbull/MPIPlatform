@@ -19,10 +19,6 @@
 #include "run.h"
 #include "mpi.h"
 
-// Flags for application types.
-DEFINE_bool(logistic_l2_l1, false, "logistic loss with l2 and l1 norm regularization type.");
-DEFINE_bool(fcn, false, "three layers fully connected network with l2 norm regularization type.");
-DEFINE_bool(multi_class_trace, false, "multiclass logistic loss with l2 norm and trace norm regularization type.");
 
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);

@@ -47,6 +47,8 @@ class Datapoint {
 
   virtual void SetLabels(const mat & labels) = 0;
 
+  virtual void OnehotEncoding(int num_class) = 0;
+
 };
 
 #endif

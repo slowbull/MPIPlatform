@@ -26,6 +26,7 @@
 #include <string.h>
 #include "Datapoint.h"
 #include "../defines.h"
+#include "../Tools/Tools.h"
 
 class ARMADatapoint : public Datapoint {
  private:
@@ -74,6 +75,10 @@ class ARMADatapoint : public Datapoint {
 
   virtual void SetLabels(const mat & labels) override {
 	this->labels = labels;
+  }
+
+  virtual void OnehotEncoding(int num_class) override {
+  	this->labels = one_hot_encoding(this->labels, num_class);
   }
 
   ARMADatapoint() {}

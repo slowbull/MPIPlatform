@@ -57,14 +57,12 @@ class MULTICLASSTRACEModel : public Model {
 	int size = datapoints->GetSize();
 	mat w_1 = vec_2_mat(model, 0, dims[0], dims[1]);
 	mat o_1(size, dims[1]);
-	mat onehot_y(size, dims[1]);
 
-	one_hot_encoding(datapoints->GetLabelsRows(0, size-1), onehot_y);
 
 	affine_forward(datapoints->GetFeaturesCols(0, size-1).t(), w_1, o_1);
-	loss = logistic_forward(o_1, onehot_y);
+	loss = logistic_forward(o_1, datapoints->GetLabelsRows(0, size-1));
 
-	accuracy = metric_acc_logistic(o_1, onehot_y);
+	accuracy = metric_acc_logistic(o_1, datapoints->GetLabelsRows(0, size-1));
 
 	return loss + ComputeRegularization(); 
   }
@@ -124,15 +122,12 @@ class MULTICLASSTRACEModel : public Model {
 	mat dx(size, dims[0]);
 	mat o_1(size, dims[1]);
 	mat dldo_1(size, dims[1]);
-	mat onehot_y(size, dims[1]);
-
-	one_hot_encoding(datapoints->GetLabelsRows(0, size-1), onehot_y);
 
 	// forward
 	affine_forward(datapoints->GetFeaturesCols(0, size-1).t(), w_1, o_1);
 
 	// backward
-	logistic_backward(o_1, onehot_y, dldo_1);
+	logistic_backward(o_1, datapoints->GetLabelsRows(0, size-1), dldo_1);
 	affine_backward(datapoints->GetFeaturesCols(0, size-1).t(), w_1, dldo_1, dx, grad_1);
 
 	g->coeffs = mat_2_vec(grad_1);
