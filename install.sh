@@ -16,17 +16,17 @@ sudo apt-get -y install liblapack-dev
 sudo apt-get -y install libarpack-dev
 
 # install armadillo
-if [ ! -f armadillo-7.200.2.tar.xz ]
+if [ ! -f armadillo-8.100.1.tar.xz]
 then
-	wget http://sourceforge.net/projects/arma/files/armadillo-7.200.2.tar.xz
+	wget http://sourceforge.net/projects/arma/files/armadillo-8.100.1.tar.xz
 fi 
-tar xvf armadillo-7.200.2.tar.xz
-cd armadillo-7.200.2
+tar xvf armadillo-8.100.1.tar.xz
+cd armadillo-8.100.1
 cmake .
 make 
 sudo make install
 cd ..
-rm armadillo-7.200.2.tar.xz 
+rm armadillo-8.100.1.tar.xz
 
 #fetch gflags
 git clone https://github.com/gflags/gflags.git
