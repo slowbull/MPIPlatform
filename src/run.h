@@ -12,10 +12,7 @@ TrainStatistics RunOnce(int taskid) {
 
   Updater *updater = NULL;
   if (FLAGS_svrg) {
-	if (!FLAGS_elastic_average) 
 	  updater = new SVRGUpdater(model, datapoints);
-	else
-	  updater = new DisSVRGUpdater(model, datapoints);
   }
   else if (FLAGS_sgd) {
 	updater = new SGDUpdater(model, datapoints);

@@ -42,7 +42,6 @@ class WorkerTrainer : public Trainer {
 	// members definition
 	double flag_epoch = 1;
 	double flag_break = 0;
-	int epoch = 0;
 	MPI_Status status;
 	std::vector<double> &local_model = model->ModelData();
 	// messages. format: 0-model.size()-1: model, model.size(): flag_epoch[0,1], model.size()+1: break ([0,1]);
