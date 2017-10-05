@@ -1,4 +1,4 @@
-# Platform for distributed optimization expriments using OpenMPI
+# Platform for distributed optimization experiments using OpenMPI
 
 ## Introduction
 This project is a platform for distributed optimization expriments using OpenMPI. This platform is used to implement the expeirments of my recent papers [1][2]. Please cite them if this code helps you. :)
@@ -24,7 +24,7 @@ This project is a platform for distributed optimization expriments using OpenMPI
 mpirun -np 5 ./mpiplatform -logistic_l2_l1 -num_workers=4 -data_file="absolutepathto/data/covtype_binary_split/" -print_loss_per_epoch -d1=54 -learning_rate=1e-1 -n_epochs=100 -mini_batch=100 -in_iters=1000 -svrg -max_delay=10
 ```
 
-### Run fully connected nueral network model.
+### Run fully connected neural network model.
  
 1. **Generate distributed datasets**.  Go to build directory, and run ```./splitdata ../data/covtype_multiclass 4 0```. It will generate 4 data files in ```data/covtype_multiclass_split/``` directory. 
   
