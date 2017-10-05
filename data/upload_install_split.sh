@@ -3,8 +3,8 @@
 #======================================================================================
 
 #upload file to aws clusters
-if [ $# -lt 3 ]; then
-	echo "usage: ./upload /path/to/codedir /path/to/datadir" 
+if [ $# -lt 2 ]; then
+	echo "usage: ./upload_install_split.sh /path/to/codedir /path/to/datadir" 
 	exit 0
 fi
 
