@@ -95,6 +95,7 @@ DEFINE_bool(sgd, false, "Use SGD.");
 #include "Updater/Updater.h"
 #include "Updater/SGDUpdater.h"
 #include "Updater/SVRGUpdater.h"
+#include "Updater/DisSVRGUpdater.h"
 
 #include "Trainer/Trainer.h"
 #include "Trainer/ServerTrainer.h"

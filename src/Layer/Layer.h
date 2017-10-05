@@ -151,7 +151,7 @@ void affine_forward(const T& x, const mat& w, mat &o){
 template<typename T1, typename T2>
 void affine_backward(const T1& x, const mat& w, const mat& dl,\
 			   	    mat &dx, T2 &grad){
-  grad = (T2) x.t()*dl;
+  grad = x.t()*dl;
   dx = dl * w.t();
 }
 
