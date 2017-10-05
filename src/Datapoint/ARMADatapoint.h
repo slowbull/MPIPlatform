@@ -38,7 +38,8 @@ class ARMADatapoint : public Datapoint {
 	sp_mat tmp_data;
 	tmp_data.load(label_filename, arma_binary);
 	labels = (mat)tmp_data;
-	delete tmp_data;
+	if (labels.min() > 0)
+		labels -= labels.min();
   }
 
  public:
