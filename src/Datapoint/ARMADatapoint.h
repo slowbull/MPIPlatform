@@ -71,14 +71,6 @@ class ARMADatapoint : public Datapoint {
 	return labels.rows(left, right);
   }
 
-  virtual void SetFeatures(const sp_mat & features) override {
-	this->features = features;
-  }
-
-  virtual void SetLabels(const mat & labels) override {
-	this->labels = labels;
-  }
-
   virtual void OnehotEncoding(int num_class) override {
   	this->labels = one_hot_encoding(this->labels, num_class);
   }

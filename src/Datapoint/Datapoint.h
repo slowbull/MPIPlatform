@@ -43,10 +43,6 @@ class Datapoint {
 
   virtual int  GetSize() = 0;
 
-  virtual void SetFeatures(const sp_mat & features) = 0;
-
-  virtual void SetLabels(const mat & labels) = 0;
-
   virtual void OnehotEncoding(int num_class) = 0;
 
   virtual mat GetVector() = 0;

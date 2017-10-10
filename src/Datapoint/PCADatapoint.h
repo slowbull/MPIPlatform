@@ -67,13 +67,6 @@ class PCADatapoint : public Datapoint {
   virtual mat GetLabelsRows(int left, int right) override {
   }
 
-  virtual void SetFeatures(const sp_mat & features) override {
-	this->features = features;
-  }
-
-  virtual void SetLabels(const mat & labels) override {
-  }
-
   virtual void OnehotEncoding(int num_class) override {
   }
 
