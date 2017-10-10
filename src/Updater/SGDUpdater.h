@@ -22,9 +22,9 @@
 
 class SGDUpdater : public Updater {
  protected:
-  void PrepareGradient(Datapoint *sub_datapoints, Gradient *g) override {
+  void PrepareGradient(Datapoint *datapoints, Gradient *g, const std::vector<int> &left_right) override {
 	std::vector<double> &cur_model = model->ModelData();
-	model->PrecomputeCoefficients(sub_datapoints, g, cur_model);
+	model->PrecomputeCoefficients(datapoints, g, cur_model, left_right);
 	model->ComputeL2Gradient(g, cur_model);
   }
 

@@ -16,7 +16,6 @@
 #ifndef _DECOUPLED_SERVER_TRAINER_
 #define _DECOUPLED_SERVER_TRAINER_ 
 
-#include "../Datapoint/ARMADatapoint.h"
 #include "../Gradient/Gradient.h"
 #include "../Tools/Tools.h"
 
@@ -31,8 +30,6 @@ class DecoupledServerTrainer : public Trainer {
  
     // Keep track of statistics of training.
     TrainStatistics stats;
-
-	Datapoint *sub_datapoints = new ARMADatapoint();
 
 	MPI_Status status;
 

@@ -49,6 +49,10 @@ class Datapoint {
 
   virtual void OnehotEncoding(int num_class) = 0;
 
+  virtual mat GetVector() = 0;
+
+  virtual double GetLambda() = 0;
+
 };
 
 #endif

@@ -16,7 +16,6 @@
 #ifndef _SERVER_TRAINER_
 #define _SERVER_TRAINER_ 
 
-#include "../Datapoint/ARMADatapoint.h"
 #include "../Gradient/Gradient.h"
 #include "../Tools/Tools.h"
 
@@ -31,8 +30,6 @@ class ServerTrainer : public Trainer {
  
     // Keep track of statistics of training.
     TrainStatistics stats;
-
-	Datapoint *sub_datapoints = new ARMADatapoint();
 
 	MPI_Status status;
 

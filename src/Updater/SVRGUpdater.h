@@ -25,12 +25,12 @@ class SVRGUpdater : public Updater {
   std::vector<double> model_copy;
   Gradient * full_gradient;
 
-  virtual void PrepareGradient(Datapoint *sub_datapoints, Gradient *gradient) override {
+  virtual void PrepareGradient(Datapoint *datapoints, Gradient *gradient, const std::vector<int> &left_right) override {
     Gradient * prev_gradient = new Gradient();
 	std::vector<double> &cur_model = model->ModelData();
-	model->PrecomputeCoefficients(sub_datapoints, gradient, cur_model);
+	model->PrecomputeCoefficients(datapoints, gradient, cur_model, left_right);
 	model->ComputeL2Gradient(gradient, cur_model);
-	model->PrecomputeCoefficients(sub_datapoints, prev_gradient, model_copy);
+	model->PrecomputeCoefficients(datapoints, prev_gradient, model_copy, left_right);
 	model->ComputeL2Gradient(prev_gradient, model_copy);
 	for (int i = 0; i < model->NumParameters(); i++){
 	  gradient->coeffs[i] += - prev_gradient->coeffs[i] + full_gradient->coeffs[i];
@@ -57,7 +57,9 @@ class SVRGUpdater : public Updater {
 	}
 	else {
 	  worker_num = datapoints->GetSize();
-	  model->PrecomputeCoefficients(datapoints, gradient, cur_model);
+	  std::vector<int> left_right(2, 0);
+	  left_right[1] = worker_num;
+	  model->PrecomputeCoefficients(datapoints, gradient, cur_model, left_right);
 	  model->ComputeL2Gradient(gradient, cur_model);
 	  for(int i=0; i < model->NumParameters(); i++) {
 		gradient->coeffs[i] *= worker_num;

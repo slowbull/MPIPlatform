@@ -19,7 +19,6 @@
 
 #include <time.h>
 #include "mpi.h"
-#include "../Datapoint/ARMADatapoint.h"
 #include "../Gradient/Gradient.h"
 
 
@@ -37,8 +36,6 @@ class WorkerTrainer : public Trainer {
 	stats.working_time = 0;
 	stats.waiting_time = 0;
 
-	Datapoint *sub_datapoints = new ARMADatapoint();
-
 	// members definition
 	double flag_epoch = 1;
 	double flag_break = 0;
@@ -46,6 +43,7 @@ class WorkerTrainer : public Trainer {
 	std::vector<double> &local_model = model->ModelData();
 	// messages. format: 0-model.size()-1: model, model.size(): flag_epoch[0,1], model.size()+1: break ([0,1]);
 	std::vector<double> message(local_model.size()+2, 0);
+	std::vector<int> left_right(2, 0);
 
 	Timer gradient_timer;
 	// Train.
@@ -74,10 +72,10 @@ class WorkerTrainer : public Trainer {
 	  if (right_index > datapoints->GetSize()) 
 		right_index = datapoints->GetSize();	
 
-	  sub_datapoints->SetFeatures(datapoints->GetFeaturesCols(left_index, right_index - 1));
-	  sub_datapoints->SetLabels(datapoints->GetLabelsRows(left_index, right_index - 1));
+	  left_right[0] = left_index;
+	  left_right[1] = right_index;
 
-	  updater->Update(model, sub_datapoints, gradient);
+	  updater->Update(model, datapoints, gradient, left_right);
 
 	  gradient_timer.Tock();
 	  stats.working_time += gradient_timer.elapsed;
@@ -96,7 +94,6 @@ class WorkerTrainer : public Trainer {
 	  flag_break = *(message.end()-1);
 	}
 
-	delete sub_datapoints;
 	return stats;
   }
 

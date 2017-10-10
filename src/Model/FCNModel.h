@@ -94,9 +94,9 @@ class FCNModel : public Model {
 	return model;
   }
 
-  void PrecomputeCoefficients(Datapoint *datapoints, Gradient *g, std::vector<double> &local_model) override {
+  void PrecomputeCoefficients(Datapoint *datapoints, Gradient *g, std::vector<double> &local_model, const std::vector<int> &left_right ) override {
 	// use layers 
-	int size = datapoints->GetSize();
+	int size = left_right[1] - left_right[0];
 	if (g->coeffs.size() != n_coords) g->coeffs.resize(n_coords);
 	int begin=0;
 	mat w_1 = vec_2_mat(local_model, begin, dims[0], dims[1]);
@@ -114,15 +114,15 @@ class FCNModel : public Model {
 	mat probs(size, dims[2]);
 
 	
-	affine_forward(datapoints->GetFeaturesCols(0, size-1).t(), w_1, o_1);
+	affine_forward(datapoints->GetFeaturesCols(left_right[0], left_right[1]-1).t(), w_1, o_1);
 	relu_forward(o_1, a_1);
 	affine_forward(a_1, w_2, o_2);
-	softmax_forward(o_2, datapoints->GetLabelsRows(0, size-1), probs);
+	softmax_forward(o_2, datapoints->GetLabelsRows(left_right[0], left_right[1]-1), probs);
 
-	softmax_backward(o_2, datapoints->GetLabelsRows(0, size-1), probs, dldo_2);
+	softmax_backward(o_2, datapoints->GetLabelsRows(left_right[0], left_right[1]-1), probs, dldo_2);
 	affine_backward(a_1, w_2, dldo_2, dlda_1, grad_2);
 	relu_backward(o_1, dlda_1, dldo_1);
-	affine_backward(datapoints->GetFeaturesCols(0, size-1).t(), w_1, dldo_1, dx, grad_1);
+	affine_backward(datapoints->GetFeaturesCols(left_right[0], left_right[1]-1).t(), w_1, dldo_1, dx, grad_1);
 
 	g->coeffs = mat_2_vec(grad_1);
 	std::vector<double> tmp;

@@ -26,7 +26,7 @@ class Updater {
   Model *model;
   Datapoint* datapoints;
 
-  virtual void PrepareGradient(Datapoint *datapoint, Gradient *g) = 0;
+  virtual void PrepareGradient(Datapoint *datapoint, Gradient *g, const std::vector<int>& left_right) = 0;
 
 
  public:
@@ -52,10 +52,10 @@ class Updater {
   }
 
   // Main update method, which is run by multiple threads.
-  virtual void Update(Model *model, Datapoint *sub_datapoints, Gradient *gradient) {
+  virtual void Update(Model *model, Datapoint *datapoints, Gradient *gradient, const std::vector<int> &left_right) {
 	gradient->Clear();
-	gradient->datapoint = sub_datapoints;
-	PrepareGradient(sub_datapoints, gradient);
+	gradient->datapoint = datapoints;
+	PrepareGradient(datapoints, gradient, left_right);
   }
 
   // Called before epoch begins.

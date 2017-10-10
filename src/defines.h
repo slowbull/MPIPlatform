@@ -81,21 +81,26 @@ DEFINE_bool(print_loss_per_epoch, false, "Should compute and print loss every ep
 DEFINE_int32(interval_print, 1, "Interval in which to print the loss.");
 DEFINE_bool(distribute, false, "code is run at distributed cluster or run on localhost otherwise.");
 DEFINE_bool(decouple, false, "proximal operator is running in the worker. decoupled algorithm.");
+DEFINE_double(lambda, 100, "estimated largetst singular value in PCA problem.");
 
 // Flags for application types.
 DEFINE_bool(logistic_l2_l1, false, "logistic loss with l2 and l1 norm regularization type.");
+DEFINE_bool(least_l2_l1, false, "least square loss with l2 and l1 norm regularization type.");
 DEFINE_bool(fcn, false, "three layers fully connected network with l2 norm regularization type.");
 DEFINE_bool(multi_class_trace, false, "multiclass logistic loss with l2 norm and trace norm regularization type.");
+DEFINE_bool(pca, false, "convex optimization for PCA. ref: Fast and Simple PCA via Convex Optimization.");
 
 // Flags for updating types.
 DEFINE_bool(svrg, false, "Use SVRG.");
+DEFINE_bool(dfsdca, false, "Use dual free sdca.");
 DEFINE_bool(sgd, false, "Use SGD.");
 
 
 #include "Updater/Updater.h"
 #include "Updater/SGDUpdater.h"
 #include "Updater/SVRGUpdater.h"
-#include "Updater/DisSVRGUpdater.h"
+#include "Updater/DFSDCAUpdater.h"
+//#include "Updater/DisSVRGUpdater.h"
 
 #include "Trainer/Trainer.h"
 #include "Trainer/ServerTrainer.h"
@@ -104,9 +109,12 @@ DEFINE_bool(sgd, false, "Use SGD.");
 #include "Trainer/DecoupledWorkerTrainer.h"
 
 #include "Datapoint/ARMADatapoint.h"
+#include "Datapoint/PCADatapoint.h"
 
 #include "Model/LOGISTICL2L1Model.h"
+#include "Model/LSL2L1Model.h"
 #include "Model/FCNModel.h"
 #include "Model/MULTICLASSTRACEModel.h"
+#include "Model/PCAModel.h"
 
 #endif

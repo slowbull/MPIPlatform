@@ -17,50 +17,47 @@
 /*
  * file should be armadillo data saved in binary format.
  * features:   d x n  
- * labels:     n x c
  */
 
-#ifndef _ARMA_DATAPOINT_
-#define _ARMA_DATAPOINT_
+#ifndef _PCA_DATAPOINT_
+#define _PCA_DATAPOINT_
 
 #include <string.h>
 #include "Datapoint.h"
 #include "../defines.h"
 #include "../Tools/Tools.h"
 
-class ARMADatapoint : public Datapoint {
+class PCADatapoint : public Datapoint {
  private:
   sp_mat features;
-  mat labels;
+  mat est_vector;
+  double lambda; // estimated largest singular value.
 
-  void Initialize(const std::string &label_filename, const std::string &feature_filename) {
+  void Initialize(const std::string &est_vector_filename, const std::string &feature_filename) {
     features.load(feature_filename, arma_binary);
-	sp_mat tmp_data;
-	tmp_data.load(label_filename, arma_binary);
-	labels = (mat)tmp_data;
-	if (labels.min() > 0)
-		labels -= labels.min();
+	est_vector.load(est_vector_filename, arma_binary);
+	lambda = FLAGS_lambda; // let lambda = 100 for now.
   }
 
  public:
-  ARMADatapoint(const std::string &data_dir, int taskid) : Datapoint(data_dir, taskid) {
+  PCADatapoint(const std::string &data_dir, int taskid) : Datapoint(data_dir, taskid) {
     if(taskid != 0) {
-	  std::string label_filename;
+	  std::string est_vector_filename;
 	  std::string feature_filename;
 	  if(!FLAGS_distribute) {
-        label_filename = data_dir + "labels.mat_" + std::to_string(taskid);	 
+        est_vector_filename = data_dir + "est_vector.mat_" + std::to_string(taskid);	 
         feature_filename = data_dir + "features.mat_" + std::to_string(taskid);		
 	  }
 	  else {
-        label_filename = data_dir + "labels.mat";	 
+        est_vector_filename = data_dir + "est_vector.mat";	 
         feature_filename = data_dir + "features.mat";
 	  }
-	  Initialize(label_filename, feature_filename);
+	  Initialize(est_vector_filename, feature_filename);
 	}
 	}
 
   virtual int GetSize() override {
-	return labels.n_rows;
+	return features.n_cols;
   }	
 
   virtual sp_mat GetFeaturesCols(int left, int right) override {
@@ -68,7 +65,6 @@ class ARMADatapoint : public Datapoint {
   }
 
   virtual mat GetLabelsRows(int left, int right) override {
-	return labels.rows(left, right);
   }
 
   virtual void SetFeatures(const sp_mat & features) override {
@@ -76,22 +72,21 @@ class ARMADatapoint : public Datapoint {
   }
 
   virtual void SetLabels(const mat & labels) override {
-	this->labels = labels;
   }
 
   virtual void OnehotEncoding(int num_class) override {
-  	this->labels = one_hot_encoding(this->labels, num_class);
   }
 
   virtual mat GetVector() override {
+  	return est_vector;
   }
 
   virtual double GetLambda() override {
+  	return lambda;
   }
 
-
-  ARMADatapoint() {}
-  ~ARMADatapoint() {} 
+  PCADatapoint() {}
+  ~PCADatapoint() {} 
 };
 
 #endif

@@ -17,6 +17,9 @@ TrainStatistics RunOnce(int taskid) {
   else if (FLAGS_sgd) {
 	updater = new SGDUpdater(model, datapoints);
   }
+  else if (FLAGS_dfsdca) {
+	updater = new DFSDCAUpdater(model, datapoints);
+  }
   else {
 	updater = new CUSTOM_UPDATER(model, datapoints);
   }

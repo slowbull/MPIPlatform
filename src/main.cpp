@@ -31,11 +31,17 @@ int main(int argc, char **argv) {
   if (FLAGS_logistic_l2_l1) {
 	Run<LOGISTICL2L1Model, ARMADatapoint>(taskid);
   }
+  else if (FLAGS_least_l2_l1) {
+	Run<LSL2L1Model, ARMADatapoint>(taskid);
+  }
   else if (FLAGS_fcn) {
 	Run<FCNModel, ARMADatapoint>(taskid);
   }
   else if (FLAGS_multi_class_trace) {
 	Run<MULTICLASSTRACEModel, ARMADatapoint>(taskid);
+  }
+  else if (FLAGS_pca) {
+	Run<PCAModel, PCADatapoint>(taskid);
   }
 
   MPI_Finalize();

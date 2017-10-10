@@ -14,8 +14,8 @@
 *    limitations under the License.
 */
 
-#ifndef _LOGISTICL2L1MODEL_
-#define _LOGISTICL2L1MODEL_
+#ifndef _PCAMODEL_
+#define _PCAMODEL_
 
 #include <sstream>
 #include <math.h>
@@ -23,13 +23,12 @@
 #include "../Layer/Layer.h"
 #include "../Tools/Tools.h"
 
-class LOGISTICL2L1Model : public Model {
+class PCAModel : public Model {
  private:
   int n_coords;
   std::vector<double> model;
   std::vector<int> dims;
-  int postive=0;
-  int negative=0;
+  mat est_vector;
 
   void Initialize() {
     // linear model
@@ -44,53 +43,33 @@ class LOGISTICL2L1Model : public Model {
     }
  public:
 
-  LOGISTICL2L1Model(int taskid) : Model(taskid) {
+  PCAModel(int taskid) : Model(taskid) {
     Initialize();
   }
 
-  // setup postive and negative numbers.
   void SetUp(Datapoint *datapoints) override {
-    for(int i=0; i<datapoints->GetSize(); i++){
-	  if(datapoints->GetLabelsRows(i,i)[0] == 1){
-	    postive += 1;
-	  }
-	  else{
-	    negative += 1;
-	  }
-    }
+	est_vector = datapoints->GetVector();
   }
-
 
   double ComputeLoss(Datapoint *datapoints, double& auc) override {
     double loss = 0;
+	auc = 0;
 	int size = datapoints->GetSize();
 	mat w = vec_2_mat(model, 0, dims[0], dims[1]);
-	mat o(size, dims[1]);
-
-	affine_forward(datapoints->GetFeaturesCols(0, size-1).t(), w, o);
-	loss = logistic_forward(o, datapoints->GetLabelsRows(0, size-1));
-
-	std::vector<double> probs = mat_2_vec(o);
-	std::vector<double> labels = mat_2_vec(datapoints->GetLabelsRows(0,size-1));
-	auc = EvaluateAUC(labels, probs, postive, negative);
-
-	return loss + ComputeRegularization(); 
+	
+	mat eye_mat(dims[0], dims[0], fill::eye);
+	mat loss_mat = 0.5 * w.t() *(datapoints->GetLambda() * eye_mat - datapoints->GetFeaturesCols(0, size-1)
+		   	* datapoints->GetFeaturesCols(0, size-1).t() / size) * w - est_vector.t() * w;
+	loss = loss_mat[0];
+	return loss; 
   }
 
   virtual double ComputeRegularization() override {
 	double regloss = 0;
-	for(int i=0; i<model.size(); i++){
-	  regloss += std::abs(model[i]) * FLAGS_l1_lambda + 0.5 * pow(model[i], 2) * FLAGS_l2_lambda;	
-	}
 	return regloss;
   }
 
   virtual void ProximalOperator(std::vector<double> &local_model, double gamma) override{
-    for (int i=0; i<local_model.size(); i++) { 
-	  double val = local_model[i];
-	  double sign = val > 0 ? 1: -1;	
-	  local_model[i] = sign * fmax( std::abs(val) - gamma, 0);
-	}
   }
 
   virtual int NumParameters() override {
@@ -101,29 +80,21 @@ class LOGISTICL2L1Model : public Model {
 	return model;
   }
 
-  void PrecomputeCoefficients(Datapoint *datapoints, Gradient *g, std::vector<double> &local_model, const std::vector<int>& left_right) override {
+  void PrecomputeCoefficients(Datapoint *datapoints, Gradient *g, std::vector<double> &local_model, const std::vector<int> &left_right) override {
 	// use layers 
 	int size = left_right[1] - left_right[0];
 	if (g->coeffs.size() != n_coords) g->coeffs.resize(n_coords);
 	mat w = vec_2_mat(local_model, 0, dims[0], dims[1]);
-	sp_mat grad(dims[0], dims[1]);
-	mat o(size, dims[1]);
-	mat dldo(size, dims[1]);
-	mat dx(size, dims[0]);
-	
-	affine_forward(datapoints->GetFeaturesCols(left_right[0], left_right[1]-1).t(), w, o);
-	logistic_backward(o, datapoints->GetLabelsRows(left_right[0], left_right[1]-1), dldo);
-	affine_backward(datapoints->GetFeaturesCols(left_right[0], left_right[1]-1).t(), w, dldo, dx, grad);
+	mat grad;
 
+	mat eye_mat(dims[0], dims[0], fill::eye);
+	grad = (datapoints->GetLambda() * eye_mat - datapoints->GetFeaturesCols(left_right[0], left_right[1]-1) 
+			* datapoints->GetFeaturesCols(left_right[0], left_right[1]-1).t() / size )*w - est_vector;
 	g->coeffs = mat_2_vec(grad);
-
   }
 
   // l2 norm.
   virtual void ComputeL2Gradient(Gradient *g, std::vector<double> &local_model) override {
-	for (int i=0;  i<NumParameters(); i++) {
-	  g->coeffs[i] += FLAGS_l2_lambda * local_model[i];
-	}
   }	
 
 
@@ -135,7 +106,7 @@ class LOGISTICL2L1Model : public Model {
 	out_file.close();
   }
 
-  ~LOGISTICL2L1Model() {
+  ~PCAModel() {
   }
 };
 

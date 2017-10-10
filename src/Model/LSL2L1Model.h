@@ -14,8 +14,8 @@
 *    limitations under the License.
 */
 
-#ifndef _MULTICLASSTRACEMODEL_
-#define _MULTICLASSTRACEMODEL_
+#ifndef _LSL2L1MODEL_
+#define _LSL2L1MODEL_
 
 #include <sstream>
 #include <math.h>
@@ -23,7 +23,7 @@
 #include "../Layer/Layer.h"
 #include "../Tools/Tools.h"
 
-class MULTICLASSTRACEModel : public Model {
+class LSL2L1Model : public Model {
  private:
   int n_coords;
   std::vector<double> model;
@@ -32,77 +32,65 @@ class MULTICLASSTRACEModel : public Model {
   int negative=0;
 
   void Initialize() {
-    // 1 layer fully connected network
-    n_coords = FLAGS_d1*FLAGS_d2;
+    // linear model
+    n_coords = FLAGS_d1;
 
     // init dims.
 	dims.push_back(FLAGS_d1);
-	dims.push_back(FLAGS_d2);
+	dims.push_back(1);
 
     // Initialize model.
-	InitWeight(model, dims);
+    model.resize(n_coords, 0);
     }
-
  public:
-  MULTICLASSTRACEModel(int taskid) : Model(taskid) {
+
+  LSL2L1Model(int taskid) : Model(taskid) {
     Initialize();
   }
 
   // setup postive and negative numbers.
   void SetUp(Datapoint *datapoints) override {
+    for(int i=0; i<datapoints->GetSize(); i++){
+	  if(datapoints->GetLabelsRows(i,i)[0] == 1){
+	    postive += 1;
+	  }
+	  else{
+	    negative += 1;
+	  }
+    }
   }
 
-  double ComputeLoss(Datapoint *datapoints, double& accuracy) override {
+
+  double ComputeLoss(Datapoint *datapoints, double& auc) override {
     double loss = 0;
 	int size = datapoints->GetSize();
-	mat w_1 = vec_2_mat(model, 0, dims[0], dims[1]);
-	mat o_1(size, dims[1]);
+	mat w = vec_2_mat(model, 0, dims[0], dims[1]);
+	mat o(size, dims[1]);
 
+	affine_forward(datapoints->GetFeaturesCols(0, size-1).t(), w, o);
+	loss = least_forward(o, datapoints->GetLabelsRows(0, size-1));
 
-	affine_forward(datapoints->GetFeaturesCols(0, size-1).t(), w_1, o_1);
-	loss = logistic_forward(o_1, datapoints->GetLabelsRows(0, size-1));
-
-	accuracy = metric_acc_logistic(o_1, datapoints->GetLabelsRows(0, size-1));
+	std::vector<double> probs = mat_2_vec(o);
+	std::vector<double> labels = mat_2_vec(datapoints->GetLabelsRows(0,size-1));
+	auc = EvaluateAUC(labels, probs, postive, negative);
 
 	return loss + ComputeRegularization(); 
   }
 
   virtual double ComputeRegularization() override {
 	double regloss = 0;
-	// l2 norm
 	for(int i=0; i<model.size(); i++){
-	  regloss += 0.5 * pow(model[i], 2) * FLAGS_l2_lambda;	
+	  regloss += std::abs(model[i]) * FLAGS_l1_lambda + 0.5 * pow(model[i], 2) * FLAGS_l2_lambda;	
 	}
-	// nuclear norm
-	mat w_1 = vec_2_mat(model, 0, dims[0], dims[1]); 
-	mat U, V;
-	vec s;
-	svd(U, s, V, w_1);
-	regloss += accu(s) * FLAGS_trace_lambda;
-
 	return regloss;
   }
 
   virtual void ProximalOperator(std::vector<double> &local_model, double gamma) override{
-	// trace norm operator.
-	mat w_1 = vec_2_mat(local_model, 0, dims[0], dims[1]); 
-	mat U, V;
-	vec s;
-	svd(U, s, V, w_1);
-	mat tmp_s(w_1);
-	tmp_s.zeros();
-	for(size_t i=0; i < s.n_elem; i++){
-		if(s[i] - gamma > 0){
-			tmp_s(i, i) = s[i] - gamma;
-		}
-		else{
-			tmp_s(i, i) = 0;
-		}
+    for (int i=0; i<local_model.size(); i++) { 
+	  double val = local_model[i];
+	  double sign = val > 0 ? 1: -1;	
+	  local_model[i] = sign * fmax( std::abs(val) - gamma, 0);
 	}
-
-	w_1 = U * tmp_s * V.t();
-
-	local_model	= mat_2_vec(w_1);
   }
 
   virtual int NumParameters() override {
@@ -113,24 +101,22 @@ class MULTICLASSTRACEModel : public Model {
 	return model;
   }
 
-  void PrecomputeCoefficients(Datapoint *datapoints, Gradient *g, std::vector<double> &local_model, const std::vector<int> & left_right) override {
+  void PrecomputeCoefficients(Datapoint *datapoints, Gradient *g, std::vector<double> &local_model, const std::vector<int>& left_right) override {
 	// use layers 
 	int size = left_right[1] - left_right[0];
 	if (g->coeffs.size() != n_coords) g->coeffs.resize(n_coords);
-	mat w_1 = vec_2_mat(local_model, 0, dims[0], dims[1]);
-	mat grad_1(dims[0], dims[1]);
+	mat w = vec_2_mat(local_model, 0, dims[0], dims[1]);
+	sp_mat grad(dims[0], dims[1]);
+	mat o(size, dims[1]);
+	mat dldo(size, dims[1]);
 	mat dx(size, dims[0]);
-	mat o_1(size, dims[1]);
-	mat dldo_1(size, dims[1]);
+	
+	affine_forward(datapoints->GetFeaturesCols(left_right[0], left_right[1]-1).t(), w, o);
+	least_backward(o, datapoints->GetLabelsRows(left_right[0], left_right[1]-1), dldo);
+	affine_backward(datapoints->GetFeaturesCols(left_right[0], left_right[1]-1).t(), w, dldo, dx, grad);
 
-	// forward
-	affine_forward(datapoints->GetFeaturesCols(left_right[0], left_right[1]-1).t(), w_1, o_1);
+	g->coeffs = mat_2_vec(grad);
 
-	// backward
-	logistic_backward(o_1, datapoints->GetLabelsRows(left_right[0], left_right[1]-1), dldo_1);
-	affine_backward(datapoints->GetFeaturesCols(left_right[0], left_right[1]-1).t(), w_1, dldo_1, dx, grad_1);
-
-	g->coeffs = mat_2_vec(grad_1);
   }
 
   // l2 norm.
@@ -148,7 +134,7 @@ class MULTICLASSTRACEModel : public Model {
 	out_file.close();
   }
 
-  ~MULTICLASSTRACEModel() {
+  ~LSL2L1Model() {
   }
 };
 

@@ -47,7 +47,7 @@ class Model {
   virtual int NumParameters() = 0;
 
   // The following are for updates of the form:
-  virtual void PrecomputeCoefficients(Datapoint *datapoint, Gradient *g, std::vector<double> &local_model) = 0;
+  virtual void PrecomputeCoefficients(Datapoint *datapoint, Gradient *g, std::vector<double> &local_model, const std::vector<int>& left_right) = 0;
 
   virtual void ComputeL2Gradient(Gradient *g, std::vector<double> &local_model) = 0;
 };
