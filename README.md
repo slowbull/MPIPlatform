@@ -1,13 +1,11 @@
 # Platform for distributed optimization experiments using OpenMPI
 
 ## Introduction
-This project is a platform for distributed optimization expriments using OpenMPI. This platform is used to implement the expeirments of our recent papers [1][2][3]. Please cite them if this code helps you. :)
+This project is a platform for distributed optimization expriments using OpenMPI. This platform is used to implement the expeirments of our recent papers [1][2]. Please cite them if this code helps you. :)
 
 [1] Zhouyuan Huo, Heng Huang, Asynchronous Stochastic Gradient Descent with Variance Reduction for Non-Convex Optimization. AAAI, 2017
 
 [2]Zhouyuan Huo, Bin Gu, Heng Huang, Decoupled Asynchronous Proximal Stochastic Gradient Descent with Variance Reduction. arXiv
-
-[3]Zhouyuan Huo, Heng Huang, Distributed asynchronous dual free stochastic dual coordinate ascent. arXiv 
 
 
 ## Installation
